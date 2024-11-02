@@ -1,17 +1,17 @@
-name: langsplat
+name: cerfsplat
 channels:
   - pytorch
   - conda-forge
   - defaults
 dependencies:
   - open-clip-torch
-  - cudatoolkit=11.6
+  - cudatoolkit=11.8
   - plyfile=0.8.1
-  - python=3.7.13
-  - pip=22.3.1
-  - pytorch=1.12.1
-  - torchaudio=0.12.1
-  - torchvision=0.13.1
+  - python=3.8
+  - pip=22.3.1  
+  # - pytorch=2.0.0
+  # - torchaudio=2.0.1
+  # - torchvision=0.15.1
   - tqdm
   - opencv
   - tensorboard
@@ -19,7 +19,12 @@ dependencies:
   - matplotlib
   - typing
   - pathlib
-  - pip:
-    - submodules/segment-anything-langsplat
-    - submodules/langsplat-rasterization
-    - submodules/simple-knn
+  - mediapy
+  # - pip:
+  #   - submodules/segment-anything-langsplat
+  #   - submodules/langsplat-rasterization
+  #   - submodules/simple-knn
+  # 1. pip uninstall torch torchvision functorch tinycudann
+  # 2. pip install torch==2.1.2+cu118 torchvision==0.16.2+cu118 --extra-index-url https://download.pytorch.org/whl/cu118
+  # pip install alles submodule
+

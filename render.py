@@ -11,6 +11,7 @@
 import numpy as np
 import torch
 from scene import Scene
+from scene.cameras import Camera
 import os
 from tqdm import tqdm
 from os import makedirs
@@ -20,6 +21,7 @@ from utils.general_utils import safe_state
 from argparse import ArgumentParser
 from arguments import ModelParams, PipelineParams, get_combined_args
 from gaussian_renderer import GaussianModel
+import json
 
 def render_set(model_path, source_path, name, iteration, views, gaussians, pipeline, background, args):
     render_path = os.path.join(model_path, name, "ours_{}".format(iteration), "renders")
@@ -50,7 +52,33 @@ def render_set(model_path, source_path, name, iteration, views, gaussians, pipel
         np.save(os.path.join(gts_npy_path, '{0:05d}'.format(idx) + ".npy"),gt.permute(1,2,0).cpu().numpy())
         torchvision.utils.save_image(rendering, os.path.join(render_path, '{0:05d}'.format(idx) + ".png"))
         torchvision.utils.save_image(gt, os.path.join(gts_path, '{0:05d}'.format(idx) + ".png"))
-               
+
+def create_Cameras_from_path(path: str):
+    all_cameras =[]
+
+    with open(path, 'r') as f:
+        data = json.load(f)
+    # Extraktion und Berechnung der Parameter
+    fovy_deg = data["default_fov"]
+    fovy = np.radians(fovy_deg)  
+    aspect_ratio = data["keyframes"][0]["aspect"]  
+    height = data["render_height"]
+    width = data["render_width"]
+    fovx = 2 * np.arctan(np.tan(fovy / 2) * aspect_ratio)
+    dummy_image = torch.ones(3, int(height), int(width), dtype=torch.float32)
+    for idx, keyframe in enumerate(data["keyframes"]):
+        transform = np.array(keyframe["matrix"]).reshape(4, 4)
+        transform_t = np.transpose(transform)
+        trans = transform[:3, 3]
+        print(trans)
+        R = transform_t[:3, :3]
+        print(R)
+        #T = transform
+        cam = Camera(colmap_id=0, R=R, T=trans, FoVx=fovx, FoVy=fovy, image=dummy_image, gt_alpha_mask=None, image_name=f"{idx}", uid=None, trans = trans, scale=1, data_device="cuda")
+        all_cameras.append(cam)
+    
+    return all_cameras
+
 def render_sets(dataset : ModelParams, iteration : int, pipeline : PipelineParams, skip_train : bool, skip_test : bool, args):
     with torch.no_grad():
         gaussians = GaussianModel(dataset.sh_degree)
@@ -62,11 +90,15 @@ def render_sets(dataset : ModelParams, iteration : int, pipeline : PipelineParam
         bg_color = [1,1,1] if dataset.white_background else [0, 0, 0]
         background = torch.tensor(bg_color, dtype=torch.float32, device="cuda")
 
-        if not skip_train:
-             render_set(dataset.model_path, dataset.source_path, "train", scene.loaded_iter, scene.getTrainCameras(), gaussians, pipeline, background, args)
+        print(scene.getTrainCameras()[0])
+        cams = create_Cameras_from_path("F:\\Studium\\Master\\Thesis\\data\\unity_fuwa_small_ls\\camera_paths\\1_20_test.json")
+        render_set(dataset.model_path, dataset.source_path, "train", scene.loaded_iter, cams, gaussians, pipeline, background, args)
 
-        if not skip_test:
-             render_set(dataset.model_path, dataset.source_path, "test", scene.loaded_iter, scene.getTestCameras(), gaussians, pipeline, background, args)
+        # if not skip_train:
+        #      render_set(dataset.model_path, dataset.source_path, "train", scene.loaded_iter, scene.getTrainCameras(), gaussians, pipeline, background, args)
+
+        # if not skip_test:
+        #      render_set(dataset.model_path, dataset.source_path, "test", scene.loaded_iter, scene.getTestCameras(), gaussians, pipeline, background, args)
 
 if __name__ == "__main__":
     # Set up command line argument parser

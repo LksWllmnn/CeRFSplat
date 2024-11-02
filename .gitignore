@@ -1,5 +1,7 @@
 *.pyc
 .vscode
+ckpts
+submodules
 output
 build
 diff_rasterization/diff_rast.egg-info

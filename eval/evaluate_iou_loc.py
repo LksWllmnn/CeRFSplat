@@ -23,6 +23,7 @@ from autoencoder.model import Autoencoder
 from openclip_encoder import OpenCLIPNetwork
 from utils import smooth, colormap_saving, vis_mask_save, polygon_to_mask, stack_mask, show_result
 
+os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 
 def get_logger(name, log_file=None, log_level=logging.INFO, file_mode='w'):
     logger = logging.getLogger(name)

@@ -8,6 +8,8 @@ from model import Autoencoder
 from torch.utils.tensorboard import SummaryWriter
 import argparse
 
+os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
+
 torch.autograd.set_detect_anomaly(True)
 
 def l2_loss(network_output, gt):

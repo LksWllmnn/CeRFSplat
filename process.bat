@@ -2,10 +2,10 @@
 setlocal enabledelayedexpansion
 
 REM Definiere die Variablen
-set dataset_path=data\unity_fuwa_small_2
-set dataset_path_from_sub=..\data\unity_fuwa_small_2
-set casename=unity_fuwa_small_2
-set gt_folder=..\data\label
+set dataset_path=data\unity_fuwa_small_1
+set dataset_path_from_sub=..\data\unity_fuwa_small_1
+set casename=unity_fuwa_small_1
+@REM set gt_folder=..\data\label
 set root_path=..
 
 REM Funktion zum Beenden bei Fehler
@@ -69,9 +69,9 @@ for %%L in (1 2 3) do (
     python render.py -m output/%casename%_%%L
     %exitOnError%
 
-    echo python render.py -m output/%casename%_%%L --include_feature
-    python render.py -m output/%casename%_%%L --include_feature
-    %exitOnError%
+    @REM echo python render.py -m output/%casename%_%%L --include_feature
+    @REM python render.py -m output/%casename%_%%L --include_feature
+    @REM %exitOnError%
 )
 
 @REM cd eval
